@@ -196,6 +196,11 @@ Nothing obvious happens when it runs unless you're watching the serial port.
 Point your favorite serial terminal at the virtual serial port, and you should
 get a Hello World.
 
+Debugging also more or less just works. It's no different than debugging a local
+program in Eclipse. Since the IDE uses the debug interface to load code when
+using "run", if it can run, it can debug. If things are broken, just randomly
+unplug and/or restart stuff until it starts working.
+
 ### Making printf work
 Open syscalls.c, and find the \_write syscall stub. The stub
 uses a typical one-byte-at-a-time stub with the (not generated) \_\_io\_putchar
@@ -282,3 +287,88 @@ anything once the timer (and therefore interrupts) start. Care should be taken
 to treat interrupts with respect and only do safe, synchronized operations from
 an interrupt context - leave all heavy lifting, polled IO, and standard library
 usage to the main execution context.
+
+## Gotchas
+Printf can be a memory hog. On memory-constrained devices, it may be best to
+avoid using printf and use custom implementations for specific use cases
+instead. Additionally, it takes some configuration magic to enable
+floating-point printf suppor.
+
+# References/Resources
+## HAL reference
+As mentioned above, the Description of HAL and Low-Layer Drivers is the bible
+for the software side of things. However, there are a few other documents to
+straighten out:
+
+The HAL driver description PDF is linked on the product page for the
+series-specific firmware package. That isn't usually a page you'll wind up on,
+since the IDE (and CubeMX itself) handles downloading of HAL packages. But there
+are some useful application notes in the documentation tab as well.
+
+Example (STM32CubeL4 driver description):
+https://www.st.com/resource/en/user_manual/dm00173145-description-of-stm32l4l4-hal-and-lowlayer-drivers-stmicroelectronics.pdf
+
+STM32CubeL4 (Firmware package) product page:
+https://www.st.com/en/embedded-software/stm32cubel4.html#documentation
+
+## Datasheets
+The datasheets are actually not particularly useful for development - most of 
+the specifics for
+peripheral usage etc. are split off into various user manuals, usually for an
+entire product line, rather than on a per-device datasheet.
+
+Each specific model of STM32 has a device-specific datasheet, readily available
+in the "Documentation" tab of the product page. The data sheet is referred to as
+a "product specification". As mentioned earlier, they don't contain much useful
+information on how peripherals work, but do have all of the device specifics.
+Look at the Datasheet for answers about memory regions, pinouts, peripheral
+availability in different power modes, etc. Just don't expect a lot of detail on
+the peripherals themselves.
+
+Example (STM32L432KC datasheet): 
+https://www.st.com/resource/en/datasheet/stm32l432kc.pdf
+
+## Nucleo User Manuals
+The Nucleo boards are surprisingly full of tricks, especially the standard
+Nucleo-64 boards. Three different user manuals are available, for the Nucleo-32,
+Nucleo-64, and Nucleo-144 family. These do contain the pin diagrams, for each
+board in the family, but it is easier to use Mbed or just a Google Image search
+to pull up the pinout. The main use of these is to identify jumper settings and
+power supply modes, which may be especially relevant for doing analog work - the
+Nucleo may provide jumpers to isolate analog power domains and references from 
+the rest of the supply. The various solder bridge settings are also included 
+in the manuals, along with the pinouts for the ST link peripheral built-in.
+
+Nucleo-32 Manual:
+https://www.st.com/resource/en/user_manual/dm00231744-stm32-nucleo32-boards-mb1180-stmicroelectronics.pdf
+
+Nucleo-64 Manual:
+https://www.st.com/resource/en/user_manual/dm00105823-stm32-nucleo64-boards-mb1136-stmicroelectronics.pdf
+
+Nucleo-144 Manual:
+https://www.st.com/resource/en/user_manual/dm00244518-stm32-nucleo144-boards-mb1137-stmicroelectronics.pdf
+
+## Reference Manual
+This is a family-wide document that goes in depth for the various peripherals.
+To figure out exactly how to use advanced peripheral modes, it may be necessary
+to go between the family reference manual (for peripheral details) and the
+description of HAL drivers (how to use it).
+
+This is also the document that will explain the difference between certain
+peripheral instances and the limitations or extensions available depending on
+which peripheral is used. For example, the full ADC implementation on the
+STM32L432 is included in the STM32L4xx reference manual.
+
+Finally, the reference manual also includes the register and bit descriptions.
+However, it is not typical to interact directly with these, the HAL takes care
+of that. But in case of HAL bugs (which do crop up with surprising frequency),
+the refman is the bible.
+
+Example (STM32L4 series Reference Manual):
+https://www.st.com/resource/en/reference_manual/dm00151940-stm32l41xxx42xxx43xxx44xxx45xxx46xxx-advanced-armbased-32bit-mcus-stmicroelectronics.pdf
+
+## Use the source, Luke
+The utilized peripheral drivers are copied into the project tree, under
+Drivers/STM32xxxx\_HAL\_Driver. These are surprisingly well documented, and
+relatively easy to read through when you absolutely, positively have to know how
+something works. You'll also wind up in there with the debugger a fair amount.
