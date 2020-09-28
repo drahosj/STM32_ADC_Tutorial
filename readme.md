@@ -204,7 +204,7 @@ doesn't get overwritten, and have libc IO "working". However, the
 one-byte-at-a-time approach is redundant with a UART function that can send
 entire arrays, so instead redefine the entire \_write stub to something sane:
 
-`
+```
 int _write(int file, char *ptr, int len)
 {
     if ((file != 1) && (file != 0)) {
@@ -215,7 +215,7 @@ int _write(int file, char *ptr, int len)
     HAL_UART_Transmit(&huart2, (uint8_t *) ptr, len, 1000);
     return len;
 }
-`
+```
 
 Add includes as needed - make sure to put them in a protected block.
 
