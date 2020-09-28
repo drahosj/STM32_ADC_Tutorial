@@ -11,6 +11,8 @@ In the new product dialog, use the board selector to choose a board.
 Default settings are fine for the remainder of the wizard. (C language,
 executable project).
 
+*Choose NO for this!*
+
 ![](doc/choose_no.png)
 
 Do _not_ initialize all peripherals with their default mode.
@@ -26,12 +28,14 @@ ADC input. PC0 chosen for this example.
 
 When you click on the pin, you get a list of pin function modes available for
 that pin.
+
 ![](doc/pin_options.png)
 
 The chosen pin is on ADC channel 10, and (in this particular case), there are
 three different ADCs available. Because of how the pin mux works, that pin can
 be on ADC1, ADC2, or ADC3, but is on channel 10 no matter which ADC peripheral.
 This is fairly typical on STM32s. ADC 1 is chosen, semi-arbitrarily.
+
 ![](doc/selected_as_adc_input.png)
 
 Review the settings for ADC 1 - the ADC peripheral is fairly simple, without
